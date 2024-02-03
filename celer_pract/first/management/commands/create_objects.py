@@ -10,4 +10,4 @@ class Command(BaseCommand):
         fake = faker.Faker()
         for i in range(0, 1000):
             Student.objects.create(name=fake.name(), age=random.randint(20,50))
-        return super().handle(*args, **options)
+        return "Created"

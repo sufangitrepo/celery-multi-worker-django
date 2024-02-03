@@ -11,7 +11,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.conf.task_routes = {
   "first.tasks.t1":{"queue": "queue1"},
   "first.tasks.t2":{"queue": "queue2"},
-  "first.tasks.write_csv":{"queue": "queue2"}
+  "first.tasks.write_csv":{"queue": "queue1"}
 
 }
 
