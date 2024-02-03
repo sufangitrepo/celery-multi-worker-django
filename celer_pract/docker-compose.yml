@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  
+  redis-celery:
+    container_name: redis-celery
+    image: redis:7.2.4-alpine
+   
+  django-app:
+
+    container_name: django-app
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/usr/src/app  
+    environment:
+      - DEBUG=True
+      - BROKER_URL=redis://redis-celery:6379/0
+      - BACKEND_RESULT=redis://redis-celery:6379/0
+    depends_on:
+      - redis-celery
+  
+  celery-app:
+
+    container_name: celery-app
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A celer_pract worker -l Info -E -Q queue1
+    volumes:
+      - .:/usr/src/app 
+    environment:
+      - DEBUG=True
+      - BROKER_URL=redis://redis-celery:6379/0
+      - RESULT_BACKEND=redis://redis-celery:6379/0
+    depends_on:
+      - redis-celery
+    
+
+  celery-app2:
+
+    container_name: celery-app2
+    build: 
+      context: ../worker2
+      dockerfile: Dockerfile
+    command: celery -A celeryworker worker -l Info -E -Q queue2
+    volumes:
+      - ../worker2:/usr/src/app 
+    environment:
+      - DEBUG=True
+      - BROKER_URL=redis://redis-celery:6379/0
+      - RESULT_BACKEND=redis://redis-celery:6379/0
+    depends_on:
+      - redis-celery
+      - django-app
+      
+      
